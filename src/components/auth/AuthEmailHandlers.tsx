@@ -1,4 +1,4 @@
-import { supabase } from '../../integrations/supabase';
+import { supabase } from '../../integrations/supabase/clients';
 
 export const sendWelcomeEmail = async (email: string, username: string) => {
   try {
