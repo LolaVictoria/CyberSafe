@@ -117,10 +117,13 @@ const Auth = () => {
     setLoading(true);
     
     try {
+      // Get the current URL's origin (hostname, port, and protocol)
+      const currentOrigin = window.location.origin;
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: currentOrigin,
           ...options
         }
       });
@@ -147,8 +150,7 @@ const Auth = () => {
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-
-      <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2">
         <div className="h-12 w-12 rounded-full bg-cybersafe-600 flex items-center justify-center">
           <img src="/logo.png" alt="Logo" className="h-10 w-10" />
         </div>
@@ -156,6 +158,8 @@ const Auth = () => {
           <h1 className="text-xl font-bold text-cybersafe-800">CyberSafe</h1>
         </Link>
       </div>
+
+      
       
       <Card className="w-full max-w-md">
         <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="w-full">
