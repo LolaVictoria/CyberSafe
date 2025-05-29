@@ -2,10 +2,8 @@ import { supabase } from '../../integrations/supabase/clients';
 
 export const sendWelcomeEmail = async (email: string, username: string) => {
   try {
-    // Get the current session before making the API call
     const { data: sessionData } = await supabase.auth.getSession();
     
-    // Log for debugging
     console.log('Sending welcome email to:', email, 'with username:', username);
     console.log('Session data available:', !!sessionData?.session);
     
@@ -13,7 +11,6 @@ export const sendWelcomeEmail = async (email: string, username: string) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // Don't require auth token for welcome emails since the user might not be fully authenticated yet
       },
       body: JSON.stringify({ email, username }),
     });
@@ -42,7 +39,6 @@ export const sendConfirmationEmail = async (email: string, username: string) => 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // Don't require auth token for confirmation emails since the user might not be fully authenticated yet
       },
       body: JSON.stringify({ email, username }),
     });

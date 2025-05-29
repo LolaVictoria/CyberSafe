@@ -113,40 +113,67 @@ const Auth = () => {
     }
   };
 
-  const handleSocialLogin = async (provider: 'google' | 'twitter', options?: any) => {
-    setLoading(true);
-    
-    try {
-      // Get the current URL's origin (hostname, port, and protocol)
-      const currentOrigin = window.location.origin;
-      
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: currentOrigin,
-          ...options
-        }
+ const handleSocialLogin = async (provider: 'google' | 'twitter', options?: any) => {
+  setLoading(true);
+
+  try {
+    const currentOrigin = window.location.origin;
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: currentOrigin,
+        ...options,
+      },
+    });
+
+    if (error) {
+      toast({
+        title: "Login Failed",
+        description: error.message,
+        variant: "destructive",
       });
-      
-      if (error) {
+    } else {
+      // Wait a bit for the user to be available after OAuth redirect
+      setTimeout(async () => {
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+
+        if (userError || !userData?.user) {
+          toast({
+            title: "User Retrieval Failed",
+            description: userError?.message || "User info not found after login.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const email = userData.user.email;
+        const username = userData.user.user_metadata?.username || email?.split('@')[0];
+
+        await sendWelcomeEmail(email, username);
+        // await sendConfirmationEmail(email, username);
+
         toast({
-          title: "Login Failed",
-          description: error.message,
-          variant: "destructive",
+          title: "Login Successful",
+          description: "Welcome! We've sent a confirmation email.",
         });
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          title: "Login Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setLoading(false);
+
+        navigate('/');
+      }, 3000); 
     }
-  };
+  } catch (error) {
+    if (error instanceof Error) {
+      toast({
+        title: "Login Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

@@ -27,7 +27,7 @@ const Header = () => {
   return (
     <header className="w-full py-4 px-6 border-b bg-white">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <div className="flex items-center space-x-2">
+        <div className={`${user ? "flex-col" : "flex-row"} flex items-center space-x-2`}>
           <div className="h-12 w-12 rounded-full bg-cybersafe-600 flex items-center justify-center">
             <img src="/logo.png" alt="Logo" className="h-10 w-10" />
           </div>
@@ -41,7 +41,7 @@ const Header = () => {
               <div className="flex items-center gap-2">
                 <User size={16} className="text-cybersafe-600" />
                 <div className="flex flex-col items-end">
-                  <span className="text-sm font-medium text-gray-700">{user.user_metadata?.username || 'User'}</span>
+                  {/* <span className="text-sm font-medium text-gray-700">{user?.user_metadata?.username || 'User'}</span> */}
                   <span className="text-xs text-gray-500">{user.email}</span>
                 </div>
               </div>
