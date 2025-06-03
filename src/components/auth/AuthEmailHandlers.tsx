@@ -28,10 +28,8 @@ export const sendWelcomeEmail = async (email: string, username: string) => {
 
 export const sendConfirmationEmail = async (email: string, username: string) => {
   try {
-    // Get the current session before making the API call
     const { data: sessionData } = await supabase.auth.getSession();
     
-    // Log for debugging
     console.log('Sending confirmation email to:', email, 'with username:', username);
     console.log('Session data available:', !!sessionData?.session);
     

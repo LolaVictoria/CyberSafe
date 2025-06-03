@@ -17,7 +17,6 @@ const Auth = () => {
   const location = useLocation();
   const { toast } = useToast();
   
-  // Determine which tab to show by default based on URL param
   const [activeTab, setActiveTab] = useState('login');
   
   useEffect(() => {
@@ -29,53 +28,73 @@ const Auth = () => {
   }, [location]);
 
   const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username,
-          },
+  try {
+    // Step 1: Sign up with email, password, and metadata
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username: username,
+        },
+      },
+    });
+
+    if (signUpError) {
+      toast({
+        title: "Sign Up Failed",
+        description: signUpError.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Step 2: As a safeguard, update user metadata (in case it wasn't applied during sign-up)
+    if (signUpData?.user) {
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: {
+          username: username,
         },
       });
 
-      if (error) {
+      if (updateError) {
+        console.error("Metadata update error:", updateError.message);
         toast({
-          title: "Sign Up Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Sign Up Successful",
-          description: "Check your email for the confirmation link.",
-        });
-        
-        // Send welcome email
-        if (data.user) {
-          await sendWelcomeEmail(email, username);
-          // Send confirmation email
-          await sendConfirmationEmail(email, username);
-        }
-        
-        navigate('/');
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          title: "Sign Up Failed",
-          description: error.message,
+          title: "Metadata Update Failed",
+          description: updateError.message,
           variant: "destructive",
         });
       }
-    } finally {
-      setLoading(false);
     }
-  };
+
+    // Step 3: Send welcome and confirmation emails
+    if (signUpData?.user) {
+      await sendWelcomeEmail(email, username);
+      await sendConfirmationEmail(email, username);
+    }
+
+    toast({
+      title: "Sign Up Successful",
+      description: "Check your email for the confirmation link.",
+    });
+
+    navigate('/');
+  } catch (error) {
+    if (error instanceof Error) {
+      toast({
+        title: "Sign Up Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,16 +166,12 @@ const Auth = () => {
           return;
         }
 
-        const email = userData.user.email;
-        const username = userData.user.user_metadata?.username || email?.split('@')[0];
-
-        await sendWelcomeEmail(email, username);
-        // await sendConfirmationEmail(email, username);
-
-        toast({
+       
+       toast({
           title: "Login Successful",
-          description: "Welcome! We've sent a confirmation email.",
-        });
+          description: "Welcome! You are logged in with Google.",
+});
+
 
         navigate('/');
       }, 3000); 
@@ -177,7 +192,7 @@ const Auth = () => {
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center space-x-2 mb-2">
+        <div className="flex items-center space-x-2 mb-4">
         <div className="h-12 w-12 rounded-full bg-cybersafe-600 flex items-center justify-center">
           <img src="/logo.png" alt="Logo" className="h-10 w-10" />
         </div>
