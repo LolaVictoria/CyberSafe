@@ -18,6 +18,13 @@ import {
 const Header = () => {
   const { user, signOut } = useAuth();
   const [open, setOpen] = useState(false);
+
+  const username =
+  user?.user_metadata?.username ||
+  user?.user_metadata?.full_name || 
+  user?.user_metadata?.name || 
+  "User";
+
   
   const handleSignOut = async () => {
     await signOut();
@@ -41,7 +48,7 @@ const Header = () => {
               <div className="flex items-center gap-2">  
                 <User size={16} className="text-cybersafe-600" />
                 <div className="flex flex-col items-start">
-                  <span className="text-sm font-medium text-gray-700">{user?.user_metadata?.username || 'User'}</span>
+                  <span className="text-sm font-medium text-gray-700">{username}</span>
                   <span className="text-xs text-gray-500">{user.email}</span>
                 </div>
               </div>
