@@ -43,6 +43,7 @@ const Auth = () => {
       },
     });
 
+    
     if (signUpError) {
       toast({
         title: "Sign Up Failed",
